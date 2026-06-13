@@ -1,9 +1,9 @@
 {
   "plugin": {
     "name": "CAD排砖插件",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "Fanben",
-    "description": "AutoCAD .NET 排砖插件 — 支持墙砖/地砖、多种铺贴方式、门窗避让、材料统计与 Excel 导出"
+    "description": "AutoCAD .NET 排砖插件 v1.1 — 新增3D可视化（Solid3d实体 + 拉伸体）"
   },
   "defaultSettings": {
     "brickSpec": "600×300",
@@ -24,9 +24,18 @@
       "hatch": true
     }
   },
+  "3dSettings": {
+    "enabled": false,
+    "wallHeight": 2800,
+    "wallThickness": 240,
+    "verticalStart": "Bottom",
+    "preciseTrim": false,
+    "comment": "3D可视化：墙砖→Solid3d实体 / 地砖→拉伸体"
+  },
   "export": {
     "excelPath": "桌面",
     "includeCutDetails": true,
-    "includePlacementData": true
+    "includePlacementData": true,
+    "includeVolumeStats": true
   }
 }

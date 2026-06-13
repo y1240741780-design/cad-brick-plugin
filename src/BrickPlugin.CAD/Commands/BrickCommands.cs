@@ -272,5 +272,140 @@ namespace Fanben.BrickPlugin.CAD.Commands
                 _ed.WriteMessage($"\n⚠️ Excel 导出失败, 改为 CSV 格式");
             }
         }
+
+        /// <summary>
+        /// BRICK3D — 3D 排砖（墙砖 Solid3d + 地砖拉伸体）
+        /// </summary>
+        [CommandMethod("BRICK3D")]
+        public void Brick3D()
+        {
+            var layerSvc = new AcadLayerService();
+            EnsureAllLayers(layerSvc);
+            layerSvc.EnsureLayer(Acad3DDrawingService.Layers3D.Wall3D, 150);   // 蓝色
+            layerSvc.EnsureLayer(Acad3DDrawingService.Layers3D.Floor3D, 40);   // 橙色
+            layerSvc.EnsureLayer(Acad3DDrawingService.Layers3D.Opening3D, 2);  // 黄色
+
+            var selectionSvc = new AcadSelectionService();
+            var drawing3D = new Acad3DDrawingService();
+
+            _ed.WriteMessage("\n🧱 3D 排砖模式");
+            _ed.WriteMessage("\n   墙砖 → Solid3d 实体 | 地砖 → 拉伸体");
+
+            // 选择墙面区域
+            var boundaries = selectionSvc.SelectClosedPolylines("\n选择墙面的 2D 边界多段线（闭合）");
+            if (boundaries.Count == 0)
+            {
+                _ed.WriteMessage("\n❌ 未选择墙面边界");
+                return;
+            }
+
+            // 输入墙高
+            var heightOpts = new Autodesk.AutoCAD.EditorInput.PromptDoubleOptions("\n输入墙面高度(mm) [默认 2800]: ");
+            heightOpts.DefaultValue = 2800;
+            heightOpts.AllowNone = true;
+            var heightRes = _ed.GetDouble(heightOpts);
+            double wallHeight = heightRes.Status == Autodesk.AutoCAD.EditorInput.PromptStatus.OK
+                ? heightRes.Value : 2800;
+
+            // 输入墙厚
+            var thickOpts = new Autodesk.AutoCAD.EditorInput.PromptDoubleOptions("\n输入墙面厚度(mm) [默认 240]: ");
+            thickOpts.DefaultValue = 240;
+            thickOpts.AllowNone = true;
+            var thickRes = _ed.GetDouble(thickOpts);
+            double wallThick = thickRes.Status == Autodesk.AutoCAD.EditorInput.PromptStatus.OK
+                ? thickRes.Value : 240;
+
+            // 选洞口
+            _ed.WriteMessage("\n选择门窗洞口多段线（无则按 ESC 跳过）...");
+            var openingPolys = selectionSvc.SelectOpeningPolylines("选择洞口多段线");
+
+            // 构建区域
+            var areaAnalyzer = new AreaAnalyzer.AreaAnalyzer();
+            var wallRegion = new Wall3DRegion
+            {
+                Name = "3D墙面",
+                BoundaryPoints = boundaries[0],
+                WallHeight = wallHeight,
+                WallThickness = wallThick,
+                VerticalStart = VerticalStartMode.Bottom
+            };
+            wallRegion.BoundingBox = areaAnalyzer.ComputeBoundingBox(wallRegion.BoundaryPoints);
+
+            // 转换洞口为 3D
+            if (openingPolys != null && openingPolys.Count > 0)
+            {
+                foreach (var poly in openingPolys)
+                {
+                    var box = areaAnalyzer.ComputeBoundingBox(poly);
+                    wallRegion.Openings3D.Add(new Opening3DInfo
+                    {
+                        Name = $"洞口{wallRegion.Openings3D.Count + 1}",
+                        Boundary = box,
+                        BottomZ = 0,    // 默认从地面起
+                        TopZ = box.Height > 1500 ? 2100 : box.Height,
+                        Type = box.Height > 1500 ? "门" : "窗"
+                    });
+                }
+            }
+
+            // 构建请求
+            var request3D = new Layout3DRequest
+            {
+                Layout2D = new LayoutRequest
+                {
+                    BrickSpec = BrickSpec.Presets[0], // 600×300
+                    JointSetting = new JointSetting(),
+                    Pattern = LayoutPattern.Straight,
+                    StartPointMode = StartPointMode.Center
+                },
+                WallRegions = new List<Wall3DRegion> { wallRegion },
+                VerticalStart = VerticalStartMode.Bottom,
+                PreciseTrim = false
+            };
+
+            _ed.WriteMessage($"\n⏳ 3D排砖计算中... 墙高:{wallHeight}mm 墙厚:{wallThick}mm");
+
+            // 执行
+            var engine = new Wall3DLayoutEngine();
+            var result = engine.Execute(request3D);
+
+            if (!result.Success)
+            {
+                _ed.WriteMessage($"\n❌ 3D排砖失败: {result.ErrorMessage}");
+                return;
+            }
+
+            _ed.WriteMessage($"\n✅ 3D排砖完成! 墙砖:{result.WallPlacements.Count}块, 耗时{result.ExecutionTimeMs}ms");
+
+            // 绘制墙砖 Solid3d
+            _ed.WriteMessage("\n   创建墙砖 3D 实体...");
+            drawing3D.CreateWallBrickSolids(result.WallPlacements, Acad3DDrawingService.Layers3D.Wall3D);
+
+            // 如果启用精确修剪且有洞口
+            if (request3D.PreciseTrim && wallRegion.Openings3D.Count > 0)
+            {
+                _ed.WriteMessage("\n   精确修剪洞口（布尔减法）...");
+                drawing3D.PreciseTrimWallBricks(result.WallPlacements,
+                    wallRegion.Openings3D, Acad3DDrawingService.Layers3D.Wall3D);
+            }
+
+            // 地砖（如果有）
+            if (result.FloorResult != null && result.FloorResult.Placements.Count > 0)
+            {
+                _ed.WriteMessage("\n   创建地砖 3D 拉伸体...");
+                double floorThickness = request3D.Layout2D.BrickSpec.Thickness;
+                drawing3D.CreateFloorBrickExtrusions(result.FloorResult.Placements,
+                    floorThickness, Acad3DDrawingService.Layers3D.Floor3D);
+            }
+
+            // 统计
+            var summary = result.MaterialSummary;
+            _ed.WriteMessage($"\n📊 3D材料统计: {summary.SpecName} | " +
+                $"整砖:{summary.WholeBrickCount} | 切割:{summary.CutBrickCount} | " +
+                $"总体积:{summary.TotalVolume:F3}m³ | 损耗:{summary.WasteRate:F1}%");
+
+            _ed.WriteMessage("\n💡 提示: 使用 VSCURRENT 切换到 3D 视图查看效果");
+            _ed.WriteMessage("\n   _vscurrent → 选择 '真实' 或 '概念' 视觉样式");
+        }
     }
 }

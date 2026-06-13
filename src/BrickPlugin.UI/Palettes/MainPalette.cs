@@ -35,6 +35,13 @@ namespace Fanben.BrickPlugin.UI.Palettes
         private CheckBox _chkOutline, _chkBlock, _chkHatch;
         private Button _btnStart;
 
+        // ===== 3D 可视化控件 =====
+        private GroupBox _gb3DSettings;
+        private CheckBox _chkEnable3D;
+        private NumericUpDown _nudWallHeight, _nudWallThickness;
+        private ComboBox _cbVerticalStart;
+        private CheckBox _chkPreciseTrim;
+
         /// <summary>
         /// 面板暴露的排砖请求
         /// </summary>
@@ -66,7 +73,7 @@ namespace Fanben.BrickPlugin.UI.Palettes
 
         private void InitializeComponent()
         {
-            this.Size = new Size(280, 720);
+            this.Size = new Size(280, 900);
             this.BackColor = Color.FromArgb(240, 240, 240);
             this.Padding = new Padding(10);
             this.AutoScroll = true;
@@ -236,6 +243,63 @@ namespace Fanben.BrickPlugin.UI.Palettes
             this.Controls.Add(_gbPresentation);
             y += 95;
 
+            // === 3D 可视化设置 ===
+            _gb3DSettings = new GroupBox
+            {
+                Text = "3D 可视化", Location = new Point(10, y),
+                Size = new Size(controlWidth, 140)
+            };
+
+            _chkEnable3D = new CheckBox
+            {
+                Text = "启用 3D 模式", Location = new Point(10, 18),
+                Checked = false, AutoSize = true,
+                Font = new Font("Microsoft YaHei", 9, FontStyle.Bold)
+            };
+            _chkEnable3D.CheckedChanged += (s, e) =>
+            {
+                bool enabled = _chkEnable3D.Checked;
+                _nudWallHeight.Enabled = enabled;
+                _nudWallThickness.Enabled = enabled;
+                _cbVerticalStart.Enabled = enabled;
+                _chkPreciseTrim.Enabled = enabled;
+            };
+
+            var lblWH = new Label { Text = "墙高(mm):", Location = new Point(10, 42), AutoSize = true };
+            _nudWallHeight = new NumericUpDown
+            {
+                Location = new Point(80, 40), Width = 70, Minimum = 100, Maximum = 10000,
+                Value = 2800, Increment = 100, Enabled = false
+            };
+            var lblWT = new Label { Text = "墙厚(mm):", Location = new Point(160, 42), AutoSize = true };
+            _nudWallThickness = new NumericUpDown
+            {
+                Location = new Point(215, 40), Width = 55, Minimum = 60, Maximum = 500,
+                Value = 240, Increment = 10, Enabled = false
+            };
+
+            var lblVStart = new Label { Text = "Z轴起铺:", Location = new Point(10, 70), AutoSize = true };
+            _cbVerticalStart = new ComboBox
+            {
+                Location = new Point(80, 67), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList,
+                Enabled = false
+            };
+            _cbVerticalStart.Items.AddRange(new object[] { "从地面往上", "从顶部往下", "居中对称" });
+            _cbVerticalStart.SelectedIndex = 0;
+
+            _chkPreciseTrim = new CheckBox
+            {
+                Text = "精确修剪洞口（布尔减法）", Location = new Point(10, 95),
+                Checked = false, AutoSize = true, Enabled = false
+            };
+
+            _gb3DSettings.Controls.AddRange(new Control[] {
+                _chkEnable3D, lblWH, _nudWallHeight, lblWT, _nudWallThickness,
+                lblVStart, _cbVerticalStart, _chkPreciseTrim
+            });
+            this.Controls.Add(_gb3DSettings);
+            y += 150;
+
             // === 开始按钮 ===
             _btnStart = new Button
             {
@@ -318,5 +382,34 @@ namespace Fanben.BrickPlugin.UI.Palettes
             if (_chkHatch.Checked) style |= PresentationStyle.Hatch;
             return style;
         }
+
+        /// <summary>
+        /// 构建 3D 排砖请求
+        /// </summary>
+        public Layout3DRequest Build3DRequest()
+        {
+            var request = new Layout3DRequest
+            {
+                Layout2D = BuildRequest(),
+                VerticalStart = (VerticalStartMode)_cbVerticalStart.SelectedIndex,
+                PreciseTrim = _chkPreciseTrim.Checked
+            };
+
+            // 创建默认墙面区域（实际使用时由调用方填充边界点）
+            request.WallRegions.Add(new Wall3DRegion
+            {
+                Name = "3D墙面",
+                WallHeight = (double)_nudWallHeight.Value,
+                WallThickness = (double)_nudWallThickness.Value,
+                VerticalStart = request.VerticalStart
+            });
+
+            return request;
+        }
+
+        /// <summary>
+        /// 是否启用了 3D 模式
+        /// </summary>
+        public bool Is3DEnabled => _chkEnable3D.Checked;
     }
 }
