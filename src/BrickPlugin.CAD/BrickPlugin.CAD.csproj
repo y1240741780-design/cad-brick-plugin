@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <RootNamespace>Fanben.BrickPlugin.CAD</RootNamespace>
+    <AssemblyName>Fanben.BrickPlugin.CAD</AssemblyName>
+    <Version>1.0.0</Version>
+    <Description>CAD排砖插件 - AutoCAD适配层（绘图/选择/图层/命令）</Description>
+    <LangVersion>8.0</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrickPlugin.Core\BrickPlugin.Core.csproj" />
+    <ProjectReference Include="..\BrickPlugin.Data\BrickPlugin.Data.csproj" />
+    <ProjectReference Include="..\BrickPlugin.UI\BrickPlugin.UI.csproj" />
+  </ItemGroup>
+
+  <!-- AutoCAD API 引用（条件编译：不同版本引用不同 DLL） -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="AcMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2024\AcMgd.dll" Private="false" />
+    <Reference Include="AcDbMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2024\AcDbMgd.dll" Private="false" />
+    <Reference Include="AcCoreMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2024\AcCoreMgd.dll" Private="false" />
+    <Reference Include="AcCui" HintPath="C:\Program Files\Autodesk\AutoCAD 2024\AcCui.dll" Private="false" />
+    <Reference Include="AdWindows" HintPath="C:\Program Files\Autodesk\AutoCAD 2024\AdWindows.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Reference Include="AcMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2025\AcMgd.dll" Private="false" />
+    <Reference Include="AcDbMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2025\AcDbMgd.dll" Private="false" />
+    <Reference Include="AcCoreMgd" HintPath="C:\Program Files\Autodesk\AutoCAD 2025\AcCoreMgd.dll" Private="false" />
+    <Reference Include="AcCui" HintPath="C:\Program Files\Autodesk\AutoCAD 2025\AcCui.dll" Private="false" />
+    <Reference Include="AdWindows" HintPath="C:\Program Files\Autodesk\AutoCAD 2025\AdWindows.dll" Private="false" />
+  </ItemGroup>
+
+</Project>

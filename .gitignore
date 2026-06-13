@@ -1,0 +1,27 @@
+# .NET 构建产物
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+*.DotSettings
+
+# NuGet
+packages/
+*.nupkg
+
+# 输出
+输出/
+
+# Excel 导出
+*.xlsx
+*.csv
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini

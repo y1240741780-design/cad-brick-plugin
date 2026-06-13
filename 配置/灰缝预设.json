@@ -1,0 +1,13 @@
+{
+  "default": {
+    "horizontal": 2.0,
+    "vertical": 2.0,
+    "comment": "默认灰缝 — 适用于大部分墙地砖"
+  },
+  "presets": [
+    { "name": "密缝", "horizontal": 0.5, "vertical": 0.5 },
+    { "name": "标准缝", "horizontal": 2.0, "vertical": 2.0 },
+    { "name": "宽缝", "horizontal": 5.0, "vertical": 5.0 },
+    { "name": "外墙缝", "horizontal": 8.0, "vertical": 8.0 }
+  ]
+}

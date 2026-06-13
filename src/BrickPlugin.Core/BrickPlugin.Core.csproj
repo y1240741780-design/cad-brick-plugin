@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Fanben.BrickPlugin.Core</RootNamespace>
+    <AssemblyName>Fanben.BrickPlugin.Core</AssemblyName>
+    <Version>1.0.0</Version>
+    <Description>CAD排砖插件 - 核心算法层（纯计算，无CAD依赖）</Description>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+</Project>

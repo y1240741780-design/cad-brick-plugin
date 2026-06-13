@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <RootNamespace>Fanben.BrickPlugin.UI</RootNamespace>
+    <AssemblyName>Fanben.BrickPlugin.UI</AssemblyName>
+    <Version>1.0.0</Version>
+    <Description>CAD排砖插件 - PaletteSet 可停靠面板</Description>
+    <LangVersion>8.0</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrickPlugin.Core\BrickPlugin.Core.csproj" />
+  </ItemGroup>
+
+</Project>

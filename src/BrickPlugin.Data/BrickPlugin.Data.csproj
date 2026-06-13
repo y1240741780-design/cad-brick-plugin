@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Fanben.BrickPlugin.Data</RootNamespace>
+    <AssemblyName>Fanben.BrickPlugin.Data</AssemblyName>
+    <Version>1.0.0</Version>
+    <Description>CAD排砖插件 - 数据层（材料统计 + Excel导出）</Description>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BrickPlugin.Core\BrickPlugin.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+  </ItemGroup>
+
+</Project>

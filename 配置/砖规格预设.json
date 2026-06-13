@@ -1,0 +1,12 @@
+[
+  { "name": "600×300", "length": 600, "width": 300, "thickness": 10 },
+  { "name": "300×300", "length": 300, "width": 300, "thickness": 10 },
+  { "name": "800×800", "length": 800, "width": 800, "thickness": 12 },
+  { "name": "600×600", "length": 600, "width": 600, "thickness": 10 },
+  { "name": "300×600", "length": 300, "width": 600, "thickness": 10 },
+  { "name": "400×400", "length": 400, "width": 400, "thickness": 10 },
+  { "name": "500×500", "length": 500, "width": 500, "thickness": 10 },
+  { "name": "1000×1000", "length": 1000, "width": 1000, "thickness": 14 },
+  { "name": "150×900", "length": 150, "width": 900, "thickness": 10 },
+  { "name": "200×1200", "length": 200, "width": 1200, "thickness": 12 }
+]

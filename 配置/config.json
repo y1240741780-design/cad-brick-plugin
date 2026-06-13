@@ -1,0 +1,32 @@
+{
+  "plugin": {
+    "name": "CAD排砖插件",
+    "version": "1.0.0",
+    "author": "Fanben",
+    "description": "AutoCAD .NET 排砖插件 — 支持墙砖/地砖、多种铺贴方式、门窗避让、材料统计与 Excel 导出"
+  },
+  "defaultSettings": {
+    "brickSpec": "600×300",
+    "joint": {
+      "horizontal": 2.0,
+      "vertical": 2.0
+    },
+    "pattern": "Straight",
+    "startPoint": "Center",
+    "cornerDirection": "BottomLeft",
+    "minCutRatio": 0.33,
+    "preferFullTile": true,
+    "confirmBeforeCut": true,
+    "autoDetectOpenings": true,
+    "presentation": {
+      "outline": true,
+      "block": true,
+      "hatch": true
+    }
+  },
+  "export": {
+    "excelPath": "桌面",
+    "includeCutDetails": true,
+    "includePlacementData": true
+  }
+}
